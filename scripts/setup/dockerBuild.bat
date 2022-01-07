@@ -1,1 +1,1 @@
-docker build -t debugginator-image -f ./setup/Dockerfile ./
+docker build -t debugginator-image -f ./scripts/setup/Dockerfile ./
