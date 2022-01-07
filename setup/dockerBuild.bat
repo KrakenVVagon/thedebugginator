@@ -1,0 +1,1 @@
+docker build -t debugginator-image -f ./setup/Dockerfile ./

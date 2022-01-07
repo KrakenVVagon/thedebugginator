@@ -1,0 +1,7 @@
+tensorflow==2.7.0
+pandas==1.3.4
+numpy==1.21.4
+plotly==5.4.0
+scikit-learn==1.0.1
+matplotlib==3.5.0
+jupyter==1.0.0
