@@ -1,0 +1,1 @@
+This is a text file as a placeholder for a general report. Report figures go into the "figures" folder.

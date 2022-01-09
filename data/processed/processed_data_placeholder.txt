@@ -1,0 +1,6 @@
+this is a placeholder for processed data. will be large arrays of data made from the datafiles in the raw folder usually in the form:
+
+[[0,1,0,...]
+ [0,0,1,...]
+ ...
+ [...,0,0,1]]
