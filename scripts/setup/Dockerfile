@@ -11,7 +11,7 @@ RUN apt-get update --fix-missing && apt-get install -y build-essential python3 \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-COPY ./setup/requirements.txt src/
+COPY ./scripts/setup/requirements.txt src/
 RUN cd src && pip install -r requirements.txt
 
 EXPOSE 7745

@@ -73,64 +73,6 @@ class EventTable(pd.DataFrame):
         
         return None
     
-@dataclass
-class Event:
-    '''Used for getting the attributes of a single event and seeing if it is in a desired range'''
-    
-    def test_attr():
-        return True
-
-@dataclass
-class DegradeNotice(ABC):
-    '''Specific notice to send when there has been a degradation in the events or tables'''
-    message: str
-    degrade_params: list
-    
-    @abstractmethod
-    def send_notice():
-        '''Send a notice if there is degradation'''
-        
-    @abstractmethod
-    def email_notice():
-        '''Send the notice via email'''
-
-@dataclass
-class FrequencyDegrade(DegradeNotice):
-    Q : float
-    
-    def send_notice(self):
-        '''Send a notice about a frequency degradation in the event'''
-        full_message = '{} for {} with Q={}'.format(self.message,self.degrade_params,self.Q)
-        print(full_message)
-        
-    def email_notice(self,from_address,to_address,host,credentials,port=587):
-        '''Send the notice via email'''
-        full_message = '{} for {} with Q={}'.format(self.message,self.degrade_params,self.Q)
-        msg = MIMEText(full_message)
-        msg['Subject'] = 'Event frequency degradation detected'
-        msg['From'] = from_address
-        msg['To'] = to_address
-        
-        s = smtplib.SMTP(host=host,port=port)
-        s.starttls()
-        s.login(from_address,credentials)
-        s.sendmail(from_address,[to_address],msg.as_string())
-        s.quit()
-        print('Email notice sent to {} from {}'.format(to_address,from_address))
-        
-@dataclass
-class AttributeDegrade(DegradeNotice):
-    value: int or float
-    expectation: int or float
-    
-    def send_notice(self):
-        '''Send notice about an attribute degradation in event'''
-        print('{} for {}. Received {}. Expected {}'.format(self.message,self.degrade_params,self.value,self.expected))
-    
-    def email_notice(self,from_address,to_address,host,credentials,port=587):
-        '''Send the notice via email'''
-        print('Email notice sent to {} from {}'.format(to_address,from_address))
-    
 def main():
     # read text file that has the correct column/event setup
     df = pd.read_csv('edo_test_data_single_user.txt')

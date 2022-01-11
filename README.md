@@ -27,14 +27,14 @@ Jupyter notebooks used during development
 reports:
 Any reports created using thedebugginator go here
 
-src:
+debugginator:
 Project source code. setup.py turns this folder into the high level module and lets it be pip installable
 
-src/data:
+debugginator/data:
 Classes and functions used to extract data and process the data to be consumed by the autoencoding models
 
-src/model:
+debugginator/model:
 Classes and functions to train model and use model to make predictions
 
-src/visualization:
+debugginator/visualization:
 Classes and functions to visualize model outputs or training parameters

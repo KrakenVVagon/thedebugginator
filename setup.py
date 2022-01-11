@@ -8,7 +8,7 @@ Created by: Andrew Younger
 
 from setuptools import setup, find_packages
 
-with open('src/__init__.py') as f:
+with open('debugginator/__init__.py') as f:
     info = {}
     for line in f.readlines():
         if line.startswith('__version__'):
@@ -19,7 +19,7 @@ setup(
     name='debugginator',
     version=info['__version__'],
     author='Andrew Younger',
-    packages=['src'] + ['src.'+pkg for pkg in find_packages('src')],
+    packages=['debugginator'] + ['debugginator.'+pkg for pkg in find_packages('debugginator')],
     install_requires=['tensorflow>=2.7.0',
                       'pandas>=1.3.4',
                       'numpy>=1.21.4',
