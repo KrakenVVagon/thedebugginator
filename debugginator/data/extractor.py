@@ -5,38 +5,35 @@ Classes and functions to extract or read data for preprocessing
 Created by: Andrew Younger
 2022-01-09
 '''
-import numpy as np
 import pandas as pd
-import tensorflow as tf
-from tensorflow.keras import layers, losses
-from tensorflow.keras.models import Model
 
 class Extractor():
+    '''
+    Called class that determines for the user if it is a pyspark dataframe or not
+    '''
+    def __new__(self,fstring,pyspark=False,ftype=None,feature_cols=[],exclude_cols=[]):
+        if pyspark:
+            return PySparkExtractor(fstring)
+        else:
+            return PandasExtractor(fstring,ftype=ftype,feature_cols=feature_cols,exclude_cols=exclude_cols)
+
+class PandasExtractor():
     '''
     Extractor class takes a file or path or database link and extracts desired feature columns.
     For the lazy people who do not want to parse their own pandas frames.
     
     fstring: path string or db table name to read and extract from
-    pyspark: optional parameter to read as pyspark session. defaults to False
     ftype: optional parameter to specify the type of fstring given (pandas readable). defaults to None
     feature_cols: optional parameter to give a list of columns to keep
     exclude_cols: optional parameter to give a list of columns to exclude
     '''
-    def __init__(self,fstring,pyspark=False,ftype=None,feature_cols=[],exclude_cols=[]):
+    def __init__(self,fstring,ftype=None,feature_cols=[],exclude_cols=[]):
         self.fstring = fstring
-        self.pyspark = pyspark
-        self.ftype = ftype
+        self.ftype = ftype or self.fstring.split('.')[-1]
         self.feature_cols = feature_cols
         self.exclude_cols = exclude_cols
         self.df = None
         
-        if self.pyspark:
-            # do pyspark loading things that we need
-            self.ftype='pyspark'
-
-        if not self.ftype:
-            self.ftype == self.fstring.split('.')[-1]
-
     def get_df(self,**kwargs):
         if self.ftype == 'csv' or self.ftype == 'txt':
             self.df = pd.read_csv(self.fstring,**kwargs)
@@ -54,7 +51,7 @@ class Extractor():
         If inplace==True replaces self.df with the transformed dataframe (for saving the interim dataframe)
         Adds the attribute "tdf" to the Extractor which is the transformed dataframe
         '''
-        if not self.df:
+        if self.df is None:
             self.get_df()
 
         use_feature_cols = True
@@ -69,16 +66,15 @@ class Extractor():
             y = x
             return lencheck(y)
 
-        use_feature_cols = feature_check(self.feature_cols,feature_cols)
-        use_exclude_cols = feature_check(self.exclude_cols,exclude_cols)
+        use_feature_cols = featurecheck(self.feature_cols,feature_cols)
+        use_exclude_cols = featurecheck(self.exclude_cols,exclude_cols)
 
         if not (use_feature_cols or use_exclude_cols):
-            print('No features to extract')
-            return None
+            raise ValueError('No feature columns to extract')
 
-        tdf = self.df.drop(exclude_cols)
+        tdf = self.df.drop(self.exclude_cols,axis=1)
         if use_feature_cols:
-            tdf = tdf[feature_cols]
+            tdf = tdf[self.feature_cols]
         self.tdf = tdf
 
         if inplace==True:
@@ -105,8 +101,8 @@ class Extractor():
         
         print(f'Saved dataframe to {savepath}')
         return None
-    
-class PySparkExtractor(Extractor):
+# TODO: make this work    
+class PySparkExtractor():
     '''
     PySpark extractor class that will extract the data from a pyspark dataframe
     '''
@@ -114,7 +110,13 @@ class PySparkExtractor(Extractor):
         return None
     
 def main():
-    print('Extractor main loop')
+    data_path = '/root/thedebugginator/data/raw/drone_bullet_proper_10k.csv'
+    extractor = Extractor(data_path,feature_cols=['fact_playerkill.killdist','fact_playerkill.eventid'])
 
+    tdf = extractor.extract_features()
+    print(tdf.head(10))
+
+    pysparkExtractor = Extractor(data_path,pyspark=True)
+    print(pysparkExtractor)
 if __name__ == '__main__':
     main()
