@@ -26,8 +26,16 @@ class Preprocesser():
         self.categorical_features = categorical_features
         self.numerical_features = numerical_features
         
-        def get_numerical_features(x):
-            return None
+        if len(self.categorical_features) == 0:
+            self.categorical_features = [c for c in self.df.columns if self.df[c].dtype not in ['int64','float64']]
+        if len(self.numerical_features) == 0:
+            self.numerical_features = [c for c in self.df.columns if self.df[c].dtype in ['int64','float64']]
+
+    def normalize(self,x):
+        return None
+
+    def encode(self,x):
+        return None
 
 def main():
     x = pd.DataFrame({
@@ -36,7 +44,8 @@ def main():
         })
 
     pp = Preprocesser(x)
-    print(pp.df)
+    print(pp.categorical_features)
+    print(pp.numerical_features)
 
 if __name__ == '__main__':
     main()
