@@ -26,6 +26,11 @@ class Preprocesser():
         self.df = df
         self.categorical_features = categorical_features
         self.numerical_features = numerical_features
+        self.normalized_features = []
+        self.numerical_inputs = []
+        self.categorical_inputs = []
+        self.encoded_features = []
+        self.model = None
         
         if len(self.categorical_features) == 0:
             self.categorical_features = [c for c in self.df.columns if self.df[c].dtype not in ['int64','float64']]
@@ -70,9 +75,27 @@ class Preprocesser():
         Train the preprocesser to accept inputs in the same form as its own df
         Assigns a model to the preprocesser that can be used to predict things
         '''
+        # check if the encoded features and/or normalized features exist and are not empty.
+        if len(self.encoded_features) == 0:
+            self.encode()
+        if len(self.normalized_features) == 0:
+            self.normalize()
 
-    def predict(self):
+        output = layers.concatenate(self.normalized_features + self.encoded_features)
+        self.model = Model(inputs=self.numerical_inputs+self.categorical_inputs,outputs=[output])
+        print('Preprocess training finished')
+
+        predict_list = [self.df[c] for c in self.numerical_features + self.categorical_features]
+        predicted = self.predict(predict_list)
+        print(f'Original dimensions: {self.df.shape}')
+        print(f'Encoded dimensions: {predicted.shape}')
+
         return None
+
+    def predict(self,x):
+        if self.model is None:
+            raise AttributeError('No trained model to make predictions. Run Preprocesser.train() first')
+        return self.model.predict(x)
 
 def main():
     x = pd.DataFrame({
@@ -81,11 +104,7 @@ def main():
         })
 
     pp = Preprocesser(x)
-    pp.normalize()
-    pp.encode()
-
-    print(pp.encoded_features)
-    print(pp.normalized_features)
+    pp.train()
 
 if __name__ == '__main__':
     main()
