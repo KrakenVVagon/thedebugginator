@@ -43,7 +43,7 @@ class PandasExtractor():
             self.df = pd.read_json(self.fstring,**kwargs)
         else:
             raise ValueError(f'File type {self.ftype} not currently supported')
-        return None
+        return self.df
 
     def extract_features(self,feature_cols=[],exclude_cols=[],inplace=False):
         '''
