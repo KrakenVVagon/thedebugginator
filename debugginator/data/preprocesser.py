@@ -97,6 +97,11 @@ class Preprocesser():
             raise AttributeError('No trained model to make predictions. Run Preprocesser.train() first')
         return self.model.predict(x)
 
+    def save(self,fname,fpath='/root/thedebugginator/models'):
+        if self.model is None:
+            raise AttributeError('No existing model to save.')
+        self.model.save(f'{fpath}/{fname}')
+
 def main():
     x = pd.DataFrame({
         'id': [1,2,3,4,5],

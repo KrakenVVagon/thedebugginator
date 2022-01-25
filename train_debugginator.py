@@ -6,6 +6,7 @@ author: Andrew Younger
 2020-01-18
 """
 import pandas as pd
+import tensorflow as tf
 from debugginator.data.extractor import Extractor
 from debugginator.data.preprocesser import Preprocesser
 
@@ -40,14 +41,6 @@ df[categorical_features] = df[categorical_features].astype(str)
 processer = Preprocesser(df)
 processer.train()
 
-testing_path = './data/raw/drone_melee_kills_1000.csv'
-extract = Extractor(testing_path)
-
-tdf = extract.get_df()
-tdf.columns = [x.split('.')[1] for x in tdf.columns]
-tdf = tdf[cols]
-tdf[categorical_features] = tdf[categorical_features].astype(str)
-
-col_list = [tdf[c] for c in numerical_features + categorical_features]
-
-print(processer.predict(col_list))
+processer.save('testing_processer')
+print('Saved preprocesser')
+print('Training completed')
