@@ -62,7 +62,9 @@ pip install .
 
 ## Usage
 
-Please see train_debugginator.py and run_debugginator.py for some use examples. example.py will be created later
+Please see train_debugginator.py and run_debugginator.py for some use examples. example.py will be created later.
+train_debugginator.py is used for training an example model and saving it.
+run_debugginator.py is used for loading an example model and running it.
 
 To use a notebook version run
 
