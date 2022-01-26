@@ -1,5 +1,9 @@
 # thedebugginator
-thedebugginator is an event degredation detector that uses an autoencoder to detect anomlies inside telemetry events.
+
+thedebugginator is a module to create deep learning models for anomaly detection.
+
+Currently supports:
+- autoencoders
 
 ## Project tree
 
@@ -64,8 +68,7 @@ pip install .
 
 Please see train_debugginator.py and run_debugginator.py for some use examples. example.py will be created later.
 
-train_debugginator.py is used for training an example model and saving it.
-
+train_debugginator.py is used for training an example model and saving it.<br>
 run_debugginator.py is used for loading an example model and running it.
 
 To use a notebook version run
