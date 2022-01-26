@@ -1,5 +1,3 @@
-
 *.pyc
-*.pyc
-debugginator/data/__pycache__/preprocesser.cpython-39.pyc
 **/__pycache__/
+**/.Trash-0/**
