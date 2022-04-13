@@ -30,6 +30,8 @@ Currently supports:
 +---scripts
     +---run
     +---setup
+    +---examples
+	\ example scripts showing training, testing, running and saving of models and data
 ```
 
 ## Setup and Installation
@@ -66,10 +68,7 @@ pip install .
 
 ## Usage
 
-Please see train_debugginator.py and run_debugginator.py for some use examples. Other more detailed use-case scripts will be added to the scripts folder.
-
-train_debugginator.py is used for training an example model and saving it.<br>
-run_debugginator.py is used for loading an example model and running it.
+Please see the folders under scripts/examples for some example scripts and use-case scenarios.
 
 To use a notebook version run
 
