@@ -91,7 +91,8 @@ def print_stats(predictions,labels):
     f1_score = 2*precision*recall/(precision+recall)
     return accuracy, precision, recall, f1_score
 
-threshold = np.mean(train_loss) + np.std(train_loss)
+train_loss1 = train_loss[train_loss <= 2]
+threshold = np.mean(train_loss1) + np.std(train_loss1)
 print(f'Testing using 1 STD threshold of: {threshold}')
 
 predictions = predict(autoencoder,processed_test,threshold)
@@ -142,6 +143,7 @@ print("Saved regular events' reconstruction plot")
 # plot bug events' reconstruction
 plt.figsize=((10,15))
 bug_events = train_loss.numpy()[train_labels==0]
+bug_events = bug_events[bug_events <= 2]
 plt.hist(bug_events,bins=25)
 plt.title('Small Sample POC Anomaly Reconstruction Error')
 plt.xlabel('Reconstruction Error')

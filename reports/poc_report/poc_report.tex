@@ -49,11 +49,11 @@
 \section{Introduction}
 Telemetry events are essential for accurate reporting on player activity and progress for modern games. They allow the analytics team to dive deeply into topics and analyze important questions from stakeholders in the project. These events can be quite expansive, detailing anything from how a player kills an enemy to what cosmetics a player applies to their character to how quickly players are able to complete the game.
 \par
-During the development cycle of a game there are frequent code changes which can affect telemetry frequently both accidentally and by design. QC teams work diligently in order to keep up with testing events as they are created but changes that affect older events often produce bugs which impact reporting done by the analytics team for playtests. In addition, telemetry events can be quite large and have many attributes with many different possibilities. A player.kill event, for example, where there are 50 weapons and 50 enemy types tracked yiels 2500 possibilities in just two columns. This further exacerbates the issues that the QC teams face when trying to catch every erroneous scenario that occurs inside telemetry events leading to the questions of: ``How do we determine when an event has bugs?'' and ``How do we know when QC teams should retest old events?''.
+During the development cycle of a game there are frequent code changes which can affect telemetry frequently both accidentally and by design. QC teams work diligently in order to keep up with testing events as they are created but changes that affect older events often produce bugs which impact reporting done by the analytics team for playtests. In addition, telemetry events can be quite large and have many attributes with many different possibilities. A player.kill event, for example, where there are 50 weapons and 50 enemy types tracked yields 2500 possibilities in just two columns. This further exacerbates the issues that the QC teams face when trying to catch every erroneous scenario that occurs inside telemetry events leading to the questions of: ``How do we determine when an event has bugs?'' and ``How do we know when QC teams should retest old events?''.
 \par
 An immediate proposition to answer these questions is to use some form of automated bug detection. There are two methods of bug detection which could be helpful for QC teams to track down and deal with bugs: checking for some sort of spike in event frequency (if events start transmitting too often or stop transmitting then there may be an issue with the event's trigger mechanism) and statistsically determining if event attribute A is supposed to match with event attribute B. This report outlines a process for the second method by using an autoencoder to learn the possibility space of an event.
 \subsection{Autoencoders}
-Autoencoders are type of neural network that fall into the \textit{encoder-decoder} family of neural networks. The general process for an autoencoder is shown in Figure \ref{autoencoder_general}. The encoding section of an autoencoder learns to ``compress'' the data down into a smaller dimension so that the decoding section of the autoencoder can attempt to recreate the original data from this low-level representation of the data. Autoencoders are used for several purposes including: image denoising, facial recognition, and, importantly for finding bugs, anomaly detection.
+Autoencoders are a type of neural network that fall into the \textit{encoder-decoder} family of neural networks. The general process for an autoencoder is shown in Figure \ref{autoencoder_general}. The encoding section of an autoencoder learns to ``compress'' the data down into a smaller dimension so that the decoding section of the autoencoder can attempt to recreate the original data from this low-level representation of the data. Autoencoders are used for several purposes including: image denoising, facial recognition, and, importantly for finding bugs, anomaly detection.
 \begin{figure}[H]
 \centering
 \includegraphics[width=.8\textwidth]{autoencoder_general.png}
@@ -62,7 +62,7 @@ Autoencoders are type of neural network that fall into the \textit{encoder-decod
 \end{figure}
 Using an autoencoder to detect anomalies in data is done by looking for data entries that have too high of an error in reconstruction. The error function is generally mean squared error (MSE) or mean average error (MAE). A threshold can be set, either manually or using some statistical methods, and any entry that gives a higher reconstruction error than the threshold is flagged as an anomalous event. For this particular scenario autoencoders are a prudent choice because they learn the specific data they were trained on quite well which leads to a much larger reconstruction error for anomalous entries. Telemetry events correspond to specific actions in-game and as such the majority of events should not be anomalies which gives autoencoders a larger advantage - especially when combined with semi-supervised learning methods.
 \subsection{Semi-Supervised Learning}
-Machine learning problems are often considered to fall into the either the category of supervised learning or into unsupervised learning. Semi-supervised learning provides a middle ground between the two methods where a model can be sufficiently trained on a dataset where only a small percentage of data points are labeled as anomalies beforehand. Under the assumption that \textit{most} of the data entries are not anomalies a semi-supervised autoencoder can be trained to detect erroneous entries.
+Machine learning problems are often considered to fall into either the category of supervised learning or into unsupervised learning. Semi-supervised learning provides a middle ground between the two methods where a model can be sufficiently trained on a dataset where only a small percentage of data points are labeled as anomalies beforehand. Under the assumption that \textit{most} of the data entries are not anomalies a semi-supervised autoencoder can be trained to detect erroneous entries.
 \section{Methods and Models}
 In order to determine if a semi-supervised autoencoder is a suitable candidate for detecting bugs in telemetry events multiple experimental steps were taken:
 \begin{enumerate}
@@ -142,16 +142,70 @@ During training it is easy to see that the majority of regular events have a rec
 \caption{Reconstruction errors for regular events and anomalous events during testing. The black line shows the anomaly threshold.}
 \label{original_poc_anomaly}
 \end{figure}
-From these two graphs it is easier to see that the model was very good at identifying anomalous events after training finished. The immediate concern is the how low the accuracy and the recall for the model are. This could be the result of the relatively high number of anomalous events. Almost 10\% of the training data was anomalous and in a realistic scenario bugs likely between 2\% and 3\% of events at most. In a future model this percentage is lowered to a more realistic amount.
+From these two graphs it is easier to see that the model was very good at identifying anomalous events after training finished. The immediate concern is  how low the accuracy and the recall for the model are. This could be the result of the relatively high number of anomalous events. Almost 10\% of the training data was anomalous and in a realistic scenario bugs likely between 2\% and 3\% of events at most. In a future model this percentage is lowered to a more realistic amount.
 \subsection{MSE Model}
 The second model was identical to the first in both data and process with the only exception that the error function was switched from MAE to MSE. Since MSE uses the square of the error instead of the average it should give a higher relative error for the anomalies. The MSE model improved all the metrics but only very slightly - less than 1\%. However any improvement is good and so MSE is the chosen error function for futre models.
 \subsection{Small Sample Model}
-The small sample model is very similar to the original proof of concept. The main difference is that the ratio of regular events to labeled anomalous events is much smaller. Instead of ten thousand regular events and one thousand anomalies it used thirty thousand regular events and the same one thousand anomalies.
-                                                                                                                                
-
-%\newpage
-%\begin{thebibliography}{100}
-%\bibitem{patil} Akshay Gadi Patil, Omri Ben-Eliezer, Or Perel, and Hadar Averbuch-%Elor, ``Recursive Autoencoders for Document Layout Generation'' {\tt arXiv:%1909.00302v4 [cs.CV]}
-%\end{thebibliography}
-
+The small sample model is very similar to the original proof of concept. The main difference is that the ratio of regular events to labeled anomalous events is much smaller. Instead of ten thousand regular events and one thousand anomalies it used thirty thousand regular events and the same one thousand anomalies. Using this much larger number of regular events to train the autoencoder greatly improved the model performance, reducing the threshold for anomalous events to 0.067. In Figures \ref{small_poc_anomaly} and \ref{small_poc_regular} the reconstruction errors for anomalies and regular events respectively can be seen for the small sample model.
+\begin{figure}[H]
+\centering
+\includegraphics[width=.8\textwidth]{small_poc_anomaly_reconstruction.png}
+\caption{Reconstruction errors for anomalous events. The black line shows the anomaly threshold.}
+\label{small_poc_anomaly}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=.8\textwidth]{small_poc_regular_reconstruction.png}
+\caption{Reconstruction errors for regular events. The black line shows the anomaly threshold.}
+\label{small_poc_regular}
+\end{figure}
+The small sample model classifies more regular events correctly compared to the original model although still misses several of the anomalous events. The following table shows the increase in model performance metrics between the original model and the small sample model. The small sample model improved over the original model in every metric. This was promising for the final model which increased the number of training samples even further.
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c| } 
+ \hline
+ Model & Accuracy & Precision & Recall & F1 Score \\ \hline
+ Original POC & 78\% & 91\% & 84\% & 87\% \\
+ Small Sample & 88\% & 96\% & 91\% & 93\% \\
+ \hline
+\end{tabular}
+\end{center}
+\subsection{Large and Arbitrary Model}
+The fourth and final model that was created used 100k completely arbitrary player.kill events to train the autoencoder. The previous models all used corrected versions of the bug that was attempting to be detected. This means that while it is possible that there are some other bugs in the training data it is the most similar to how an autoencoder would be used in practice to detect bugs in telemetry events. In this model the reconstruction error threshold was reduced to 0.0525. For this model there is no comparison of regular events to anomalous events because we do not know for sure if the events used to train the model are anomalies or not. Figure \ref{nolabel_test_reconstruction} shows the reconstruction error for the testing sample in this model.
+\begin{figure}[H]
+\centering
+\includegraphics[width=.8\textwidth]{nolabel_test_reconstruction.png}
+\caption{Reconstruction errors during model testing. The black line shows the anomaly threshold.}
+\label{nolabel_test_reconstruction}
+\end{figure}
+We can see that perhaps the standard deviation threshold is too high for this model and the threshold should maybe be set closer to 0.04 or even 0.02 to be almost certain of catching every anomaly. Figure \ref{nolabel_anomaly_reconstruction} shows that the vast majority of the known bug (drones destroyed via melee attacks) are caught and properly labeled as being bugs. This suggests that while the threshold is too high, it is not so high as to be completely useless. The model's metrics were calculated twice, once while using the threshold as one deviation higher than the mean and one with the threshold set to be the mean (0.191). Using the lower threshold of the mean hugely improved the performance of the model. Figure \ref{nolabel_anomaly_low} shows the drastic improvement in detecting known bugs.
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c| } 
+ \hline
+ Model & Accuracy & Precision & Recall & F1 Score \\ \hline
+ Original POC & 78\% & 91\% & 84\% & 87\% \\
+ Small Sample & 88\% & 96\% & 91\% & 93\% \\
+ No Label + Arbitrary & 89\% & 99\% & 89\% & 94\% \\
+ No Label + Arbitrary (Low Threshold) & 98\% & 99.8\% & 99.1\% & 99.4\% \\
+ \hline
+\end{tabular}
+\end{center}
+\begin{figure}[H]
+\centering
+\includegraphics[width=.8\textwidth]{nolabel_anomaly_reconstruction.png}
+\caption{Reconstruction errors for known anomalous events. The black line shows the anomaly threshold - most of the known bugs are properly captured.}
+\label{nolabel_anomaly_reconstruction}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=.8\textwidth]{nolabel_anomaly_low.png}
+\caption{Reconstruction errors for known anomalous events using the lower threshold. The black line shows the anomaly threshold - almost all of the known bugs are properly captured.}
+\label{nolabel_anomaly_low}
+\end{figure}
+\newpage
+\section{Conclusions and Future Work}
+Using autoencoders to detect errors in telemetry events is entirely possible. With a sufficiently large sample size a very precise and accurate model can be trained. The reconstruction error on arbitrary events is closely clustered and using a low threshold like the mean reconstuction error can accurately determine if an event is an anomaly or not. A threshold that is too low could mean falsely labeling many events as bugs when they are not. This could lead to lots of manual work from QC correctly labeling events as bugs or not; with regular retraining this should help improve the model's performance.
+\par
+Future work for detecting anomalies includes investigating other methods of vectorization for categorical columns as well as other types of models that could be more flexible than an autoencoder. One-hot encoding is a very inefficient method of vectorization and when the dataset size becomes larger can take a lot of time to generate vectors that the neural network can read. Other encoding options are learned embedded encoding and ordinal encoding. Autoencoders are not very flexible in the sense that a different autoencoder has be trained for every event. This can get repetitive and if multiple events need similar but slightly different models it can be expensive to maintain many different ones. There are other options for anomaly detection which may prove to be more flexible and should be investigated including: generative adversarial networks, sequence-to-sequence models, one-class support vector machines and siamese networks for oneshot learning.
+\par
+The more immediate next step is to establish an automatic process to detect possible anomalies in events. This will include a dashboard system where anomalous events are logged for a specific event as well as the rate and number of anomalies between builds. The model will retrain periodically but will not yet include input from QC marking events as anomalous or not.
 \end{document}

@@ -91,7 +91,7 @@ def print_stats(predictions,labels):
     f1_score = 2*precision*recall/(precision+recall)
     return accuracy, precision, recall, f1_score
 
-threshold = np.mean(train_loss) + np.std(train_loss)
+threshold = np.mean(train_loss) +  np.std(train_loss)
 print(f'Testing using 1 STD threshold of: {threshold}')
 
 predictions = predict(autoencoder,processed_test,threshold)
